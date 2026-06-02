@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Administrador {
+  id            Int         @id @default(autoincrement())
+  nombre        String
+  email         String      @unique
+  password_hash String
+  comunidades   Comunidad[]
+  invitacionesEnviadas AdminInvitacion[] @relation("adminInvitador")
+  createdAt     DateTime    @default(now())
+}
+
+model AdminInvitacion {
+  id            Int         @id @default(autoincrement())
+  email         String
+  token         String      @unique
+  comunidad_id  Int
+  comunidad     Comunidad   @relation(fields: [comunidad_id], references: [id])
+  admin_invitador_id Int
+  admin_invitador Administrador @relation("adminInvitador", fields: [admin_invitador_id], references: [id])
+  expira_en     DateTime
+  usado         Boolean     @default(false)
+  creado_en     DateTime    @default(now())
+}
+
+model Comunidad {
+  id               Int          @id @default(autoincrement())
+  nombre           String
+  direccion        String
+  administrador_id Int
+  administrador    Administrador @relation(fields: [administrador_id], references: [id])
+  vecinos          Vecino[]
+  incidencias      Incidencia[]
+  invitaciones     AdminInvitacion[]
+  createdAt        DateTime     @default(now())
+}
+
+model Vecino {
+  id            Int          @id @default(autoincrement())
+  nombre        String
+  email         String       @unique
+  password_hash String
+  piso_puerta   String
+  comunidad_id  Int
+  comunidad     Comunidad    @relation(fields: [comunidad_id], references: [id])
+  incidencias   Incidencia[]
+  createdAt     DateTime     @default(now())
+}
+
+model Incidencia {
+  id             Int                @id @default(autoincrement())
+  titulo         String
+  descripcion    String
+  estado         Estado             @default(PENDIENTE)
+  imagen_url     String?
+  fecha_creacion DateTime           @default(now())
+  vecino_id      Int
+  vecino         Vecino              @relation(fields: [vecino_id], references: [id])
+  comunidad_id   Int
+  comunidad      Comunidad           @relation(fields: [comunidad_id], references: [id])
+  comentarios    Comentario[]
+  historial      IncidenciaHistorial[]
+}
+
+model IncidenciaHistorial {
+  id             Int        @id @default(autoincrement())
+  incidencia_id  Int
+  incidencia     Incidencia @relation(fields: [incidencia_id], references: [id])
+  campo          String
+  antiguo        String?
+  nuevo          String?
+  autor          String
+  autor_tipo     AutorTipo  @default(VECINO)
+  creado_en      DateTime   @default(now())
+}
+
+model Comentario {
+  id             Int        @id @default(autoincrement())
+  texto          String
+  fecha_creacion DateTime   @default(now())
+  autor_nombre   String
+  is_admin       Boolean    @default(false)
+  incidencia_id  Int
+  incidencia     Incidencia @relation(fields: [incidencia_id], references: [id])
+}
+
+enum AutorTipo {
+  ADMIN
+  VECINO
+  SYSTEM
+}
+
+enum Estado {
+  PENDIENTE
+  EN_PROCESO
+  RESUELTO
+}

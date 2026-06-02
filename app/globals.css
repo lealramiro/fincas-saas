@@ -1,26 +1,94 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Hallmark OKLCH Tokens — Tinted Neutrals + Saturated Accent */
+  
+  /* Surfaces — tinted toward accent (blue) */
+  --surface-0: oklch(97.5% 0.004 250);
+  --surface-1: oklch(99.5% 0.002 250);
+  --surface-2: oklch(96% 0.006 250);
+  
+  /* Borders */
+  --border-1: oklch(92% 0.008 250);
+  
+  /* Text — tinted hierarchy */
+  --text-primary: oklch(11% 0.02 250);
+  --text-secondary: oklch(35% 0.01 250);
+  --text-tertiary: oklch(55% 0.008 250);
+  --text-quaternary: oklch(75% 0.006 250);
+  
+  /* Accent — saturated blue */
+  --accent-5: oklch(73% 0.18 251);
+  --accent-6: oklch(68% 0.22 251);
+  --accent-7: oklch(55% 0.25 251);
+  --accent-8: oklch(52% 0.23 251);
+  --accent-9: oklch(45% 0.24 251);
+  --accent-rgb: 59, 130, 246;
+  
+  /* Alert / Warning */
+  --alert-0: oklch(97% 0.08 20);
+  --alert-5: oklch(75% 0.15 20);
+  --alert-7: oklch(50% 0.2 20);
+  
+  /* Success */
+  --success-0: oklch(95% 0.08 140);
+  --success-7: oklch(45% 0.2 140);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--surface-0);
+  --color-foreground: var(--text-primary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Dark mode adjustments */
+    --surface-0: oklch(18% 0.006 250);
+    --surface-1: oklch(22% 0.008 250);
+    --surface-2: oklch(26% 0.01 250);
+    --border-1: oklch(35% 0.01 250);
+    --text-primary: oklch(95% 0.02 250);
+    --text-secondary: oklch(75% 0.015 250);
+    --text-tertiary: oklch(55% 0.01 250);
+    --text-quaternary: oklch(40% 0.008 250);
   }
 }
 
+html, body {
+  overflow-x: clip;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--surface-0);
+  color: var(--text-primary);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-geist-sans);
+  letter-spacing: -0.02em;
+}
+
+.font-mono {
+  font-family: var(--font-geist-mono);
+  font-size: 0.875em;
+}
+
+/* 8-state interaction discipline */
+button:focus-visible {
+  outline: 2px solid var(--accent-5);
+  outline-offset: 2px;
+}
+
+input:focus-visible {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }
