@@ -25,6 +25,7 @@ interface Incidencia {
 }
 
 interface Vecino {
+  id: number
   nombre: string
   piso_puerta: string
   comunidad: string
@@ -76,8 +77,23 @@ export default function VecinoIncidenciasPage() {
       return
     }
 
-    setVecino(JSON.parse(vecinoData))
+    const vecinoObj: Vecino = JSON.parse(vecinoData)
+    setVecino(vecinoObj)
     cargarIncidencias()
+
+    const channel = supabase
+      .channel('incidencias-vecino')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'Incidencia',
+        filter: `vecino_id=eq.${vecinoObj.id}`
+      }, () => {
+        cargarIncidencias()
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
   }, [])
 
   function handleImagenSeleccionada(e: React.ChangeEvent<HTMLInputElement>) {
@@ -227,24 +243,24 @@ export default function VecinoIncidenciasPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-        <div>
-          <h1 className="text-base font-semibold text-gray-900">Portal del vecino</h1>
-          <p className="text-xs text-gray-400">{vecino.piso_puerta} · {vecino.comunidad}</p>
+      <nav className="bg-white border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center gap-3">
+        <div className="min-w-0">
+          <h1 className="text-sm sm:text-base font-semibold text-gray-900 truncate">Portal del vecino</h1>
+          <p className="text-xs text-gray-400 truncate">{vecino.piso_puerta} · {vecino.comunidad}</p>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-500">{vecino.nombre}</span>
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="hidden sm:inline text-sm text-gray-500">{vecino.nombre}</span>
           <button
             onClick={handleLogout}
-            className="text-sm text-red-500 hover:text-red-700"
+            className="text-sm text-red-500 hover:text-red-700 whitespace-nowrap"
           >
             Cerrar sesión
           </button>
         </div>
       </nav>
 
-      <main className="max-w-2xl mx-auto px-6 py-8">
-        <div className="flex justify-between items-center mb-6">
+      <main className="max-w-2xl mx-auto px-4 py-6 sm:px-6 sm:py-8">
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
           <h2 className="text-xl font-medium text-gray-900">Mis incidencias</h2>
           {!editandoId && (
             <button
@@ -413,7 +429,7 @@ export default function VecinoIncidenciasPage() {
                     <p className="text-xs text-gray-400 mt-1">{ESTADO_CONFIG[i.estado].label}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {i.estado !== 'RESUELTO' && (
+                    {i.estado === 'PENDIENTE' && (
                       <button
                         onClick={() => handleIniciarEdicion(i)}
                         className="text-sm text-blue-500 hover:text-blue-700"

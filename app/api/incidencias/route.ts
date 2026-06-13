@@ -157,6 +157,15 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
+    const incidenciaExistente = await prisma.incidencia.findUnique({
+      where: { id: body.id },
+      include: { comunidad: true }
+    })
+
+    if (!incidenciaExistente || incidenciaExistente.comunidad.administrador_id !== user.id) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+    }
+
     const incidencia = await prisma.incidencia.update({
       where: { id: body.id },
       data: { estado: body.estado },
@@ -259,17 +268,14 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Incidencia no encontrada' }, { status: 404 })
   }
 
-  if (incidencia.estado === 'RESUELTO') {
-    return NextResponse.json({ error: 'No se puede editar una incidencia resuelta' }, { status: 400 })
+  if (incidencia.estado !== 'PENDIENTE') {
+    return NextResponse.json({ error: 'Solo se pueden editar incidencias en estado Pendiente' }, { status: 400 })
   }
 
   const cambios: Array<{ campo: string; antiguo: string | null; nuevo: string | null }> = []
   const data: Record<string, unknown> = {}
 
   if (titulo !== undefined && titulo !== incidencia.titulo) {
-    if (incidencia.estado === 'EN_PROCESO') {
-      return NextResponse.json({ error: 'No se puede cambiar el título una vez que la incidencia está en proceso' }, { status: 400 })
-    }
     data.titulo = titulo
     cambios.push({ campo: 'titulo', antiguo: incidencia.titulo, nuevo: titulo })
   }

@@ -8,11 +8,13 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
 import { useDroppable, useDraggable } from '@dnd-kit/core'
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 
 interface Incidencia {
   id: number
@@ -60,6 +62,8 @@ function TarjetaIncidencia({ incidencia }: { incidencia: Incidencia }) {
       style={style}
       {...listeners}
       {...attributes}
+      role="listitem"
+      aria-label={`Incidencia: ${incidencia.titulo}, vecino ${incidencia.vecino.nombre}`}
       className="bg-white rounded-lg border border-gray-200 p-4 cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md transition-shadow"
     >
       <p className="font-medium text-gray-900 text-sm mb-1">{incidencia.titulo}</p>
@@ -140,9 +144,10 @@ export default function IncidenciasPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const sensors = useSensors(useSensor(PointerSensor, {
-    activationConstraint: { distance: 8 }
-  }))
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
 
   function getToken() {
     return localStorage.getItem('token') || ''

@@ -55,6 +55,14 @@ export async function DELETE(request: NextRequest) {
 
   const { id } = await request.json()
 
+  const vecinoAEliminar = await prisma.vecino.findFirst({
+    where: { id, comunidad: { administrador_id: admin.id } }
+  })
+
+  if (!vecinoAEliminar) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+  }
+
   const incidenciasAbiertas = await prisma.incidencia.count({
     where: {
       vecino_id: id,
@@ -92,6 +100,22 @@ export async function PATCH(request: NextRequest) {
 
   if (!id || !nombre || !email || !piso_puerta || !comunidad_id) {
     return NextResponse.json({ error: 'Todos los campos son obligatorios' }, { status: 400 })
+  }
+
+  const vecinoExistente = await prisma.vecino.findFirst({
+    where: { id, comunidad: { administrador_id: admin.id } }
+  })
+
+  if (!vecinoExistente) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+  }
+
+  const comunidadDestino = await prisma.comunidad.findFirst({
+    where: { id: comunidad_id, administrador_id: admin.id }
+  })
+
+  if (!comunidadDestino) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
   }
 
   const vecino = await prisma.vecino.update({
