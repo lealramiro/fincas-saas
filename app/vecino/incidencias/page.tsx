@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -54,6 +54,7 @@ export default function VecinoIncidenciasPage() {
   const [editLoading, setEditLoading] = useState(false)
   const [error, setError] = useState('')
   const [editError, setEditError] = useState('')
+  const editFormRef = useRef<HTMLFormElement>(null)
   const router = useRouter()
 
   function getToken() {
@@ -163,6 +164,7 @@ export default function VecinoIncidenciasPage() {
     setEditImagen(null)
     setEditPrevisualizacion(incidencia.imagen_url)
     setEditError('')
+    setTimeout(() => editFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
   }
 
   function handleCancelarEdicion() {
@@ -342,7 +344,7 @@ export default function VecinoIncidenciasPage() {
         )}
 
         {editandoId && incidenciaEnEdicion && (
-          <form onSubmit={handleEditar} className="bg-white rounded-xl border border-gray-200 p-6 mb-6 space-y-4">
+          <form ref={editFormRef} onSubmit={handleEditar} className="bg-white rounded-xl border border-gray-200 p-6 mb-6 space-y-4">
             <h3 className="font-medium text-gray-900">Editar incidencia</h3>
             <div>
               <label htmlFor="edit-incidencia-titulo" className="block text-sm font-medium text-gray-700 mb-1">Título</label>

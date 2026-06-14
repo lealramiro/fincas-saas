@@ -62,12 +62,11 @@ function TarjetaIncidencia({ incidencia }: { incidencia: Incidencia }) {
       style={style}
       {...listeners}
       {...attributes}
-      role="listitem"
       aria-label={`Incidencia: ${incidencia.titulo}, vecino ${incidencia.vecino.nombre}`}
       className="bg-white rounded-lg border border-gray-200 p-4 cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md transition-shadow"
     >
       <p className="font-medium text-gray-900 text-sm mb-1">{incidencia.titulo}</p>
-      <p className="text-xs text-gray-500 mb-3 line-clamp-2">{incidencia.descripcion}</p>
+      <p className="text-xs text-gray-600 mb-3 line-clamp-2">{incidencia.descripcion}</p>
       {incidencia.imagen_url && (
         <img
           src={incidencia.imagen_url}
@@ -78,9 +77,9 @@ function TarjetaIncidencia({ incidencia }: { incidencia: Incidencia }) {
       <div className="flex justify-between items-center">
         <div>
           <p className="text-xs font-medium text-gray-700">{incidencia.vecino.nombre}</p>
-          <p className="text-xs text-gray-400">{incidencia.vecino.piso_puerta} · {incidencia.comunidad.nombre}</p>
+          <p className="text-xs text-gray-600">{incidencia.vecino.piso_puerta} · {incidencia.comunidad.nombre}</p>
         </div>
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-600">
           {new Date(incidencia.fecha_creacion).toLocaleDateString('es-ES')}
         </p>
       </div>
@@ -332,7 +331,7 @@ export default function IncidenciasPage() {
           </div>
         ) : (
           <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-            <div role="list" className="flex gap-4">
+            <div className="flex gap-4">
               {COLUMNAS.map(col => (
                 <Columna
                   key={col.id}
